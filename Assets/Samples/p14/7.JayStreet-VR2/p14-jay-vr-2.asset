@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29cafdc4e936d1944aaf79d7724c759a, type: 3}
+  m_Name: p14-jay-vr-2
+  m_EditorClassIdentifier: 
+  trial_name: p14-jay-vr-2
+  output_dir: p14/jay-vr-2
+  trial_file: {fileID: 4900000, guid: c3059acefe0a277489175d281b09dabf, type: 3}
+  trial_num_cols: 2
+  user_file: {fileID: 4900000, guid: caaa25e6ab98eff4d88c027b050b185d, type: 3}
+  user_num_cols: 29
+  user_timestamp_col: 0
+  user_pos_cols: {x: 1, y: 2, z: 3}
+  user_forward_cols: {x: 4, y: 5, z: 6}
+  user_velocity_cols: {x: 7, y: 8, z: 9}
+  pedestrian_file: {fileID: 4900000, guid: 1106b91b33e749141a3e4345a8a600bd, type: 3}
+  pedestrian_num_cols: 9
+  pedestrian_timestamp_col: 0
+  pedestrian_guiID_col: 1
+  pedestrian_pos_cols: {x: 2, y: 3}
+  pedestrian_forward_cols: {x: 4, y: 5, z: 6}
+  pedestrian_velocity_cols: {x: 7, y: 8}

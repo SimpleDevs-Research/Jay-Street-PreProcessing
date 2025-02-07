@@ -1,0 +1,12 @@
+timestamp,timestamp_sec,timestamp_ms,trial_ms,player_action,direction,scene_description
+00:31.060,31.060,31060,940,Walk,Forward,Two pedestrians ahead and walking in the same direction. Participant starts walking forward in tandem with pedestrian directly in front.
+00:33.110,33.110,33110,2990,Continue,Forward,Pedestrian suddenly appears on left of participant from behind. Participant attempts to continue walking forward.
+00:57.240,57.240,57240,27120,Shift,Right,Pedestrian suddenly appears on left ahead of participant and walking to left of participant. Participant shifts slightly to the right but maintains forward trajectory.
+00:59.660,59.660,59660,29540,Walk,Forward,Pedestrian on left passes. Participant straightens trajectory and walks forward.
+01:02.470,62.470,62470,32350,Shift,Right,Two incoming pedestrians ahead of pedestrian. One is on the left and heading to left of pedestrian. The other is on the right and heading to the right of the pedestrian. Participant shifts rightward slightly to avoid left pedestrian but maintains their forward trajectory.
+01:04.600,64.600,64600,34480,Rotate,Right,Left-incoming pedestrian passes. Another left-side pedestrian appears suddenly and passes through tandem pedestrian ahead. Participants orients rightward slightly to avoid collision with new left pedestrian and enter gap between left and right pedestrians.
+01:05.600,65.600,65600,35480,Walk,Forward,Participant passes gap between two incoming pedestrians. Participant straightens trajectory and continues forward.
+01:06.240,66.240,66240,36120,Shift,Left,Incoming pedestrian on right of participant appears ahead and is walking to right of pedestrian. Participant shifts leftward in anticipation but continues forward trajectory.
+01:09.500,69.500,69500,39380,Rotate,Left,Pedestrian on right just about to pass participant. Participant rotates orientation leftward likely due to proximity to rightward pedestrian.
+01:10.620,70.620,70620,40500,Walk,Forward,Pedestrian on right passes participant. Participant straightens orientation while continuing forward.
+01:14.500,74.500,74500,44380,Stop,Forward,Participant stops. End of trial.

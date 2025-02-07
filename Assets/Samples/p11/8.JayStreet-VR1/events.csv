@@ -1,0 +1,15 @@
+timestamp,timestamp_sec,timestamp_ms,trial_ms,player_action,direction,scene_description
+01:10.000,70.000,70000,310,Walk,Forward,Trial start. Incoming pedestrian on immediate left. Participant starts walking forward.
+01:21.100,81.100,81100,11410,Shift,Left,Pedestrian on immediate right from behind. Participant shifts slightly left but maintains forward movement.
+01:29.430,89.430,89430,19740,Shift,Left,Incoming pedestrian walking to right of participant. Participant shifts left but maintains forward movement.
+01:31.700,91.700,91700,22010,Shift,Right,Pedestrian passes participant on right. Incoming pedestrian on left. Participant shifts right but maintains forward movement.
+01:34.970,94.970,94970,25280,Walk,Forward,Pedestrian on left passes participant. Participant moves forward despite two incoming pedestrians on left.
+01:39.990,99.990,99990,30300,Shift,Left,Pedestrian on left passes participant. Pair of incoming pedestrians ahead of participant. Right participant clearly walking to right of participant. Particopant shifts to left but maintains forward movement.
+01:41.100,101.100,101100,31410,Shift,Right,Gap appears between pair of incoming pedestrians. Right pedestrian closer to right of participant. Participant shifts rightward to enter gap.
+01:43.030,103.030,103030,33340,Walk,Forward,Participant enters gap between incoming pedestrians.
+01:43.400,103.400,103400,33710,Shift,Left,Pedestrian suddenly appears on immediate right from behind participant. Participant shifts left to avoid collision.
+01:47.060,107.060,107060,37370,Continue,Left,Pedestrian on left heading to left of pedestrian. Pedestrian on right overtakes participant. Participant continues leftward shift while moving forward.
+01:49.630,109.630,109630,39690,Walk,Forward,Pedestrian on left passes participant. Another incoming pedestrian on left. Participant moves forward and tandem follows pedestrian in front.
+01:55.450,115.450,115450,45760,Rotate,Left,Pedestrian on right appears suddenly and is walking to right of participant. Participant rotates orientation leftward in collision avoidance measure.
+01:56.390,116.390,116390,46700,Slow,Left,Two pedestrians on left of participant and walking to left of participant. Participant maintains leftward orientation and visibly slows down.
+02:03.840,123.840,123840,54150,Rotate,Left,Participant stops and rotates leftward. 

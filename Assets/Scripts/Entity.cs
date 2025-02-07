@@ -11,25 +11,31 @@ public class Entity : MonoBehaviour
         public Vector3 rel_position;
         public Vector3 forward;
         public Vector3 rel_forward;
+        public Vector3 velocity;
+        public Vector3 rel_velocity;
         public float angle_from_participant;
         public float distance_from_participant;
         public bool isActive;
-        public EntityState(float timestamp, Vector3 position, Vector3 rel_position, Vector3 forward, Vector3 rel_forward, float angle_from_participant, float distance_from_participant, bool isActive) {
+        public EntityState(float timestamp, Vector3 position, Vector3 rel_position, Vector3 forward, Vector3 rel_forward, Vector3 velocity, Vector3 rel_velocity, float angle_from_participant, float distance_from_participant, bool isActive) {
             this.timestamp = timestamp;
             this.position = position;
             this.rel_position = rel_position;
             this.forward = forward;
             this.rel_forward = rel_forward;
+            this.velocity = velocity;
+            this.rel_velocity = rel_velocity;
             this.angle_from_participant = angle_from_participant;
             this.distance_from_participant = distance_from_participant;
             this.isActive = isActive;
         }
-        public EntityState(float timestamp, Vector3 position, Vector3 forward, bool isActive) {
+        public EntityState(float timestamp, Vector3 position, Vector3 forward, Vector3 velocity, bool isActive) {
             this.timestamp = timestamp;
             this.position = position;
             this.rel_position = Vector3.zero;
             this.forward = forward;
             this.rel_forward = Vector3.zero;
+            this.velocity = velocity;
+            this.rel_velocity = Vector3.zero;
             this.angle_from_participant = 0f;
             this.distance_from_participant = 0f;
             this.isActive = isActive;
@@ -38,6 +44,7 @@ public class Entity : MonoBehaviour
             this.timestamp = timestamp;
             this.position = copyState.position;
             this.forward = copyState.forward;
+            this.velocity = copyState.velocity;
             this.isActive = isActive;
         }
     }
@@ -64,9 +71,9 @@ public class Entity : MonoBehaviour
         m_timestamps_check = new List<float>();
     }
 
-    public void AddRawState(float timestamp, Vector3 position, Vector3 forward) {
+    public void AddRawState(float timestamp, Vector3 position, Vector3 forward, Vector3 velocity) {
         if (m_raw_timestamps_check.Contains(timestamp)) return;
-        m_raw_timestamps.Add(new EntityState(timestamp, position, forward, true));
+        m_raw_timestamps.Add(new EntityState(timestamp, position, forward, velocity, true));
         m_raw_timestamps_check.Add(timestamp);
     }
 
@@ -90,17 +97,20 @@ public class Entity : MonoBehaviour
             float time_range = end_timestamp - start_timestamp;
             if (start_timestamp <= timestamp && timestamp < end_timestamp) {
                 float timestamp_diff = timestamp - start_timestamp;
-                Vector3 position = Vector3.Lerp(m_raw_timestamps[i].position, m_raw_timestamps[i+1].position, timestamp_diff/time_range);
+                float lerpFactor = timestamp_diff/time_range;
+                Vector3 position = Vector3.Lerp(m_raw_timestamps[i].position, m_raw_timestamps[i+1].position, lerpFactor);
                 Vector3 rel_position = (refState != null) ? position - refState.position : Vector3.zero;
-                Vector3 forward = Vector3.Lerp(m_raw_timestamps[i].forward, m_raw_timestamps[i+1].forward, timestamp_diff/time_range);
+                Vector3 forward = Vector3.Lerp(m_raw_timestamps[i].forward, m_raw_timestamps[i+1].forward, lerpFactor);
                 Vector3 rel_forward = (refState != null) ? forward - refState.forward : Vector3.zero;
+                Vector3 velocity = Vector3.Lerp(m_raw_timestamps[i].velocity, m_raw_timestamps[i+1].velocity, lerpFactor);
+                Vector3 rel_velocity = (refState != null) ? velocity - refState.velocity : Vector3.zero;
                 float angle_from_participant = 0f;
                 float distance_from_participant = 0f;
                 if (refState != null) {
                     distance_from_participant = rel_position.magnitude;
                     if (distance_from_participant != 0f) angle_from_participant = Vector3.SignedAngle(refState.forward, rel_position.normalized, Vector3.up);
                 }
-                m_timestamps.Add(timestamp, new EntityState(timestamp, position, rel_position, forward, rel_forward, angle_from_participant, distance_from_participant, true));
+                m_timestamps.Add(timestamp, new EntityState(timestamp, position, rel_position, forward, rel_forward, velocity, rel_velocity, angle_from_participant, distance_from_participant, true));
                 m_timestamps_check.Add(timestamp);
                 break;
             }

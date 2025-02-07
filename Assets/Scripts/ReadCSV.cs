@@ -5,6 +5,9 @@ using System;
 
 public class ReadCSV : MonoBehaviour
 {
+    public ParticipantTrial participantTrial;
+
+    /*
     [SerializeField] private TextAsset m_trialCSV;
     [SerializeField] private int m_numTrialCols = 2;
     [Space]
@@ -20,6 +23,7 @@ public class ReadCSV : MonoBehaviour
     [SerializeField] private int m_pedestrianGuiIDCol= 1;
     [SerializeField] private Vector2Int m_pedestrianPosCols = new Vector2Int(2,3);
     [SerializeField] private Vector3Int m_pedestrianForwardCols = new Vector3Int(4,5,6);
+    */
     [Space]
 
     private List<EntityPosition> m_playerPositions;
@@ -32,6 +36,7 @@ public class ReadCSV : MonoBehaviour
     [Space]
 
     [Header("Settings")]
+    [SerializeField] private bool m_readOnStart = true;
     [SerializeField] private bool m_replayOn = true;
     [SerializeField] private bool m_playing = false;
     [SerializeField] private float m_viewFieldDistance = 10f;
@@ -44,12 +49,14 @@ public class ReadCSV : MonoBehaviour
         public long rel_timestamp;
         public Vector3 position;
         public Vector3 forward;
-        public EntityPosition(string id, long timestamp, long rel_timestamp, Vector3 position, Vector3 forward) {
+        public Vector3 velocity;
+        public EntityPosition(string id, long timestamp, long rel_timestamp, Vector3 position, Vector3 forward,  Vector3 velocity) {
             this.id = id;
             this.timestamp = timestamp;
             this.rel_timestamp = rel_timestamp;
             this.position = position;
             this.forward = forward;
+            this.velocity = velocity;
         }
         public override string ToString() {
             return $"{timestamp}\t{rel_timestamp}\t{position.ToString()}\t{forward.ToString()}";
@@ -103,35 +110,40 @@ public class ReadCSV : MonoBehaviour
 
     public long GetTrialStart() {
         // Trial data file should be read
-        string[] data = ReadCSVFile(m_trialCSV);
-        int numRows = GetTableSize(data, m_numTrialCols);
+        string[] data = ReadCSVFile(participantTrial.trial_file);
+        int numRows = GetTableSize(data, participantTrial.trial_num_cols);
         
         // The trial start is expected be in the last row, first column.
         // We get an overflow problem if we parse as int32. Instead, we parse as a long type.
-        return long.Parse(data[numRows*m_numTrialCols]);
+        return long.Parse(data[numRows*participantTrial.trial_num_cols]);
     }
 
     public List<EntityPosition> GetPlayerPositions(long trialStart) {
         // User data file should be read
-        string[] data = ReadCSVFile(m_playerCSV);
-        int numRows = GetTableSize(data, m_numPlayerCols);
+        string[] data = ReadCSVFile(participantTrial.user_file);
+        int numRows = GetTableSize(data, participantTrial.user_num_cols);
         
         List<EntityPosition> positions = new List<EntityPosition>();
         for(int i = 1; i <= numRows; i++) {
-            int rowIndex = i*m_numPlayerCols;
-            long timestamp = long.Parse(data[rowIndex+m_playerTimestampCol]);
+            int rowIndex = i*participantTrial.user_num_cols;
+            long timestamp = long.Parse(data[rowIndex+participantTrial.user_timestamp_col]);
             long rel_timestamp = timestamp - trialStart;
             Vector3 position = new Vector3(
-                float.Parse(data[rowIndex+m_playerPosCols.x]),
+                float.Parse(data[rowIndex+participantTrial.user_pos_cols.x]),
                 0f,
-                float.Parse(data[rowIndex+m_playerPosCols.z])
+                float.Parse(data[rowIndex+participantTrial.user_pos_cols.z])
             );
             Vector3 forward = new Vector3(
-                float.Parse(data[rowIndex+m_playerForwardCols.x]),
-                float.Parse(data[rowIndex+m_playerForwardCols.y]),
-                float.Parse(data[rowIndex+m_playerForwardCols.z])
+                float.Parse(data[rowIndex+participantTrial.user_forward_cols.x]),
+                float.Parse(data[rowIndex+participantTrial.user_forward_cols.y]),
+                float.Parse(data[rowIndex+participantTrial.user_forward_cols.z])
             );
-            EntityPosition newPos = new EntityPosition("player", timestamp, rel_timestamp, position, forward);
+            Vector3 velocity = new Vector3(
+                float.Parse(data[rowIndex+participantTrial.user_velocity_cols.x]),
+                0f,
+                float.Parse(data[rowIndex+participantTrial.user_velocity_cols.z])
+            );
+            EntityPosition newPos = new EntityPosition("player", timestamp, rel_timestamp, position, forward, velocity);
             positions.Add(newPos);
         }
 
@@ -140,26 +152,31 @@ public class ReadCSV : MonoBehaviour
 
     public List<EntityPosition> GetPedestrianPositions(long trialStart) {
         // User data file should be read
-        string[] data = ReadCSVFile(m_pedestrianCSV);
-        int numRows = GetTableSize(data, m_numPedestrianCols);
+        string[] data = ReadCSVFile(participantTrial.pedestrian_file);
+        int numRows = GetTableSize(data, participantTrial.pedestrian_num_cols);
         
         List<EntityPosition> positions = new List<EntityPosition>();
         for(int i = 1; i <= numRows; i++) {
-            int rowIndex = i*m_numPedestrianCols;
-            long timestamp = long.Parse(data[rowIndex+m_pedestrianTimestampCol]);
+            int rowIndex = i*participantTrial.pedestrian_num_cols;
+            long timestamp = long.Parse(data[rowIndex+participantTrial.pedestrian_timestamp_col]);
             long rel_timestamp = timestamp - trialStart;
-            string _id = data[rowIndex+m_pedestrianGuiIDCol];
+            string _id = data[rowIndex+participantTrial.pedestrian_guiID_col];
             Vector3 position = new Vector3(
-                float.Parse(data[rowIndex+m_pedestrianPosCols.x]),
+                float.Parse(data[rowIndex+participantTrial.pedestrian_pos_cols.x]),
                 0f,
-                float.Parse(data[rowIndex+m_pedestrianPosCols.y])
+                float.Parse(data[rowIndex+participantTrial.pedestrian_pos_cols.y])
             );
             Vector3 forward = new Vector3(
-                float.Parse(data[rowIndex+m_pedestrianForwardCols.x]),
-                float.Parse(data[rowIndex+m_pedestrianForwardCols.y]),
-                float.Parse(data[rowIndex+m_pedestrianForwardCols.z])
+                float.Parse(data[rowIndex+participantTrial.pedestrian_forward_cols.x]),
+                float.Parse(data[rowIndex+participantTrial.pedestrian_forward_cols.y]),
+                float.Parse(data[rowIndex+participantTrial.pedestrian_forward_cols.z])
             );
-            EntityPosition newPos = new EntityPosition(_id, timestamp, rel_timestamp, position, forward);
+            Vector3 velocity = new Vector3(
+                float.Parse(data[rowIndex+participantTrial.pedestrian_velocity_cols.x]),
+                0f,
+                float.Parse(data[rowIndex+participantTrial.pedestrian_velocity_cols.y])
+            );
+            EntityPosition newPos = new EntityPosition(_id, timestamp, rel_timestamp, position, forward, velocity);
             positions.Add(newPos);
         }
 
@@ -179,7 +196,7 @@ public class ReadCSV : MonoBehaviour
             } else {
                 currentEntity = m_entities[entityID];
             }
-            currentEntity.AddRawState(ep.rel_timestamp, ep.position, ep.forward);
+            currentEntity.AddRawState(ep.rel_timestamp, ep.position, ep.forward, ep.velocity);
         }
     }
 
@@ -207,6 +224,10 @@ public class ReadCSV : MonoBehaviour
 
 
     private void Start() {
+        if (m_readOnStart) ReadTrial();
+    }
+
+    public string ReadTrial() {
         // Get the trial start
         long trialStart = GetTrialStart();
 
@@ -224,15 +245,17 @@ public class ReadCSV : MonoBehaviour
         AlignPedestriansToPlayer();
 
         // Save player data as CSV files
+        m_writer.dirName = participantTrial.output_dir;
         SavePlayerCSV();
         SavePedestriansCSV();
 
         // Replay the scene
         if (m_replayOn) StartCoroutine(ReplayCoroutine());
+        return m_writer.GetLastFilepath();
     }
     
     public void SavePlayerCSV() {
-        m_writer.fileName = "user-aligned.csv";
+        m_writer.fileName = "user-aligned";
         m_writer.Initialize();
 
         Entity player = m_entities["player"];
@@ -243,6 +266,8 @@ public class ReadCSV : MonoBehaviour
             m_writer.AddPayload(playerState.rel_position);
             m_writer.AddPayload(playerState.forward);
             m_writer.AddPayload(playerState.rel_forward);
+            m_writer.AddPayload(playerState.velocity);
+            m_writer.AddPayload(playerState.rel_velocity);
             m_writer.AddPayload(playerState.angle_from_participant);
             m_writer.AddPayload(playerState.distance_from_participant);
             m_writer.AddPayload((playerState.isActive) ? 1 : 0);
@@ -253,7 +278,7 @@ public class ReadCSV : MonoBehaviour
     }
 
     public void SavePedestriansCSV() {
-        m_writer.fileName = "pedestrians-aligned.csv";
+        m_writer.fileName = "pedestrians-aligned";
         m_writer.Initialize();
 
          // loop through all other entities
@@ -268,6 +293,8 @@ public class ReadCSV : MonoBehaviour
                 m_writer.AddPayload(otherState.rel_position);
                 m_writer.AddPayload(otherState.forward);
                 m_writer.AddPayload(otherState.rel_forward);
+                m_writer.AddPayload(otherState.velocity);
+                m_writer.AddPayload(otherState.rel_velocity);
                 m_writer.AddPayload(otherState.angle_from_participant);
                 m_writer.AddPayload(otherState.distance_from_participant);
                 m_writer.AddPayload((otherState.isActive) ? 1 : 0);
