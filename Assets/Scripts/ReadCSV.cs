@@ -22,12 +22,19 @@ public class ReadCSV : MonoBehaviour
     [SerializeField] private Vector3Int m_pedestrianForwardCols = new Vector3Int(4,5,6);
     [Space]
 
-    [SerializeField] private List<EntityPosition> m_playerPositions;
-    [SerializeField] private List<EntityPosition> m_pedestrianPositions;
-    [SerializeField] private List<EntityPosition> m_entityPositions;
+    private List<EntityPosition> m_playerPositions;
+    private List<EntityPosition> m_pedestrianPositions;
+    private List<EntityPosition> m_entityPositions;
     [SerializeField] private Dictionary<string, Entity> m_entities;
+    [SerializeField] private Entity m_playerPrefab;
     [SerializeField] private Entity m_entityPrefab;
     [SerializeField] private int m_replayFPS = 15;
+    [Space]
+
+    [Header("Settings")]
+    [SerializeField] private bool m_playing = false;
+    [SerializeField] private float m_viewFieldDistance = 10f;
+    [SerializeField] private CSVWriter m_writer;
 
     [System.Serializable]
     public class EntityPosition {
@@ -61,6 +68,11 @@ public class ReadCSV : MonoBehaviour
             this.pedestrianPositions = pedestrianPositions;
         }
     }
+
+    /* -------------------- */
+
+
+
 
     // Note: Read a csv file. The outputted string array is the number of cell items, not the number of rows.
     public static string[] ReadCSVFile(TextAsset ta, string colDivider = ",", string rowDivider = "\n") {
@@ -159,7 +171,8 @@ public class ReadCSV : MonoBehaviour
             string entityID = ep.id;
             Entity currentEntity;
             if (!m_entities.ContainsKey(entityID)) {
-                currentEntity = Instantiate(m_entityPrefab, Vector3.zero, Quaternion.identity) as Entity;
+                Entity prefab = (entityID == "player") ? m_playerPrefab : m_entityPrefab;
+                currentEntity = Instantiate(prefab, Vector3.zero, Quaternion.identity) as Entity;
                 currentEntity.InitializeEntity(entityID);
                 m_entities.Add(entityID, currentEntity);
             } else {
@@ -185,7 +198,7 @@ public class ReadCSV : MonoBehaviour
             foreach(KeyValuePair<string, Entity> kvp2 in m_entities) {
                 string otherID = kvp2.Key;
                 Entity otherEntity = kvp2.Value;
-                otherEntity.CreateStateFromTimestamp(timestamp);
+                otherEntity.CreateStateFromTimestamp(timestamp, playerState);
             }
         }
     }
@@ -209,11 +222,65 @@ public class ReadCSV : MonoBehaviour
         InitializeAllEntities();
         AlignPedestriansToPlayer();
 
+        // Save player data as CSV files
+        SavePlayerCSV();
+        SavePedestriansCSV();
+
         // Replay the scene
         StartCoroutine(ReplayCoroutine());
     }
+    
+    public void SavePlayerCSV() {
+        m_writer.fileName = "user-aligned.csv";
+        m_writer.Initialize();
+
+        Entity player = m_entities["player"];
+        foreach(Entity.EntityState playerState in player.raw_timestamps) {
+            m_writer.AddPayload(playerState.timestamp);
+            m_writer.AddPayload(player._id);
+            m_writer.AddPayload(playerState.position);
+            m_writer.AddPayload(playerState.rel_position);
+            m_writer.AddPayload(playerState.forward);
+            m_writer.AddPayload(playerState.rel_forward);
+            m_writer.AddPayload(playerState.angle_from_participant);
+            m_writer.AddPayload(playerState.distance_from_participant);
+            m_writer.AddPayload((playerState.isActive) ? 1 : 0);
+            m_writer.WriteLine();
+        }
+
+        m_writer.Disable();
+    }
+
+    public void SavePedestriansCSV() {
+        m_writer.fileName = "pedestrians-aligned.csv";
+        m_writer.Initialize();
+
+         // loop through all other entities
+        foreach(KeyValuePair<string, Entity> kvp2 in m_entities) {
+            string otherID = kvp2.Key;
+            Entity otherEntity = kvp2.Value;
+            if (otherID == "player") continue;
+            foreach(Entity.EntityState otherState in otherEntity.timestamps.Values) {
+                m_writer.AddPayload(otherState.timestamp);
+                m_writer.AddPayload(otherID);
+                m_writer.AddPayload(otherState.position);
+                m_writer.AddPayload(otherState.rel_position);
+                m_writer.AddPayload(otherState.forward);
+                m_writer.AddPayload(otherState.rel_forward);
+                m_writer.AddPayload(otherState.angle_from_participant);
+                m_writer.AddPayload(otherState.distance_from_participant);
+                m_writer.AddPayload((otherState.isActive) ? 1 : 0);
+                m_writer.WriteLine();
+            }
+        }
+
+        m_writer.Disable();
+    }
 
     private IEnumerator ReplayCoroutine() {
+
+        // Indicate to the system that we're playing a coroutine
+        m_playing = true;
 
         // Get the player entity
         Entity player = m_entities["player"];
@@ -226,6 +293,13 @@ public class ReadCSV : MonoBehaviour
             // Get the key and value from kvp
             float timestamp = playerState.timestamp;
 
+            // Draw debug rays to represent visual field
+            Vector3 leftVisualEdge = Quaternion.Euler(0, -55, 0) * playerState.forward * m_viewFieldDistance;
+            Debug.DrawRay(playerState.position, leftVisualEdge, Color.green);
+            Vector3 rightVisualEdge = Quaternion.Euler(0, 55, 0) * playerState.forward * m_viewFieldDistance;
+            Debug.DrawRay(playerState.position, rightVisualEdge, Color.green);
+            Debug.DrawRay(playerState.position, playerState.forward * m_viewFieldDistance, Color.green);
+
             // loop through all other entities
             foreach(KeyValuePair<string, Entity> kvp2 in m_entities) {
                 string otherID = kvp2.Key;
@@ -234,5 +308,7 @@ public class ReadCSV : MonoBehaviour
             }
             yield return waitDelay;
         }
+
+        m_playing = false;
     }
 }

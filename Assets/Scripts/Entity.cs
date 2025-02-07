@@ -8,12 +8,30 @@ public class Entity : MonoBehaviour
     public class EntityState {
         public float timestamp;
         public Vector3 position;
+        public Vector3 rel_position;
         public Vector3 forward;
+        public Vector3 rel_forward;
+        public float angle_from_participant;
+        public float distance_from_participant;
         public bool isActive;
+        public EntityState(float timestamp, Vector3 position, Vector3 rel_position, Vector3 forward, Vector3 rel_forward, float angle_from_participant, float distance_from_participant, bool isActive) {
+            this.timestamp = timestamp;
+            this.position = position;
+            this.rel_position = rel_position;
+            this.forward = forward;
+            this.rel_forward = rel_forward;
+            this.angle_from_participant = angle_from_participant;
+            this.distance_from_participant = distance_from_participant;
+            this.isActive = isActive;
+        }
         public EntityState(float timestamp, Vector3 position, Vector3 forward, bool isActive) {
             this.timestamp = timestamp;
             this.position = position;
+            this.rel_position = Vector3.zero;
             this.forward = forward;
+            this.rel_forward = Vector3.zero;
+            this.angle_from_participant = 0f;
+            this.distance_from_participant = 0f;
             this.isActive = isActive;
         }
         public EntityState(float timestamp, EntityState copyState, bool isActive) {
@@ -52,7 +70,7 @@ public class Entity : MonoBehaviour
         m_raw_timestamps_check.Add(timestamp);
     }
 
-    public void CreateStateFromTimestamp(float timestamp) {
+    public void CreateStateFromTimestamp(float timestamp, EntityState refState = null) {
         // First, check if the timeestamp is less than the first raw timestamp or is bigger than the last raw timestamp.
         if (timestamp < m_raw_timestamps[0].timestamp) {
             m_timestamps.Add(timestamp, new EntityState(timestamp, m_raw_timestamps[0], false));
@@ -73,8 +91,16 @@ public class Entity : MonoBehaviour
             if (start_timestamp <= timestamp && timestamp < end_timestamp) {
                 float timestamp_diff = timestamp - start_timestamp;
                 Vector3 position = Vector3.Lerp(m_raw_timestamps[i].position, m_raw_timestamps[i+1].position, timestamp_diff/time_range);
+                Vector3 rel_position = (refState != null) ? position - refState.position : Vector3.zero;
                 Vector3 forward = Vector3.Lerp(m_raw_timestamps[i].forward, m_raw_timestamps[i+1].forward, timestamp_diff/time_range);
-                m_timestamps.Add(timestamp, new EntityState(timestamp, position, forward, true));
+                Vector3 rel_forward = (refState != null) ? forward - refState.forward : Vector3.zero;
+                float angle_from_participant = 0f;
+                float distance_from_participant = 0f;
+                if (refState != null) {
+                    distance_from_participant = rel_position.magnitude;
+                    if (distance_from_participant != 0f) angle_from_participant = Vector3.SignedAngle(refState.forward, rel_position.normalized, Vector3.up);
+                }
+                m_timestamps.Add(timestamp, new EntityState(timestamp, position, rel_position, forward, rel_forward, angle_from_participant, distance_from_participant, true));
                 m_timestamps_check.Add(timestamp);
                 break;
             }

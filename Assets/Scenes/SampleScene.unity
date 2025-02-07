@@ -245,24 +245,48 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9d902e4f42624d488fe4829da0e543d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_trialCSV: {fileID: 4900000, guid: 28a3a539290e944f98880f6f9b4a121c, type: 3}
+  m_trialCSV: {fileID: 4900000, guid: f315bd158c1b2d744954b43f5439c2d1, type: 3}
   m_numTrialCols: 2
-  m_playerCSV: {fileID: 4900000, guid: bdded166ea20a4779bc989689e50131a, type: 3}
-  m_numPlayerCols: 28
+  m_playerCSV: {fileID: 4900000, guid: b50834f672b726d47b3591680af70d79, type: 3}
+  m_numPlayerCols: 29
   m_playerTimestampCol: 0
   m_playerPosCols: {x: 1, y: 2, z: 3}
   m_playerForwardCols: {x: 4, y: 5, z: 6}
-  m_pedestrianCSV: {fileID: 4900000, guid: 5d4be854f5f574fe8a162ee59abd62f8, type: 3}
+  m_pedestrianCSV: {fileID: 4900000, guid: 07892c6572c0a0b4c8a121d201917f49, type: 3}
   m_numPedestrianCols: 9
   m_pedestrianTimestampCol: 0
   m_pedestrianGuiIDCol: 1
   m_pedestrianPosCols: {x: 2, y: 3}
   m_pedestrianForwardCols: {x: 4, y: 5, z: 6}
-  m_playerPositions: []
-  m_pedestrianPositions: []
-  m_entityPositions: []
+  m_playerPrefab: {fileID: 429694955805703097, guid: f22ec98ff0788b4468b7c19bfe50b68e, type: 3}
   m_entityPrefab: {fileID: 5593306728688141905, guid: 65a94c3b9e5034505b6f31fff712ad88, type: 3}
-  m_replayFPS: 30
+  m_replayFPS: 60
+  m_playing: 0
+  m_viewFieldDistance: 20
+  m_writer:
+    fileName: 
+    dirName: sample2
+    writeUnixTime: 0
+    append_zero_to_filename: 0
+    columns:
+    - unix_milliseconds
+    - id
+    - pos_x
+    - pos_y
+    - pos_z
+    - rel_pos_x
+    - rel_pos_y
+    - rel_pos_z
+    - forward_x
+    - forward_y
+    - forward_z
+    - rel_forward_x
+    - rel_forward_y
+    - rel_forward_z
+    - angle_from_participant
+    - distance_from_participant
+    - is_active
+    filePath: 
 --- !u!4 &727922686
 Transform:
   m_ObjectHideFlags: 0
