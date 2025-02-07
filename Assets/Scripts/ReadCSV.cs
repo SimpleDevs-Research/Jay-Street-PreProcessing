@@ -32,6 +32,7 @@ public class ReadCSV : MonoBehaviour
     [Space]
 
     [Header("Settings")]
+    [SerializeField] private bool m_replayOn = true;
     [SerializeField] private bool m_playing = false;
     [SerializeField] private float m_viewFieldDistance = 10f;
     [SerializeField] private CSVWriter m_writer;
@@ -227,7 +228,7 @@ public class ReadCSV : MonoBehaviour
         SavePedestriansCSV();
 
         // Replay the scene
-        StartCoroutine(ReplayCoroutine());
+        if (m_replayOn) StartCoroutine(ReplayCoroutine());
     }
     
     public void SavePlayerCSV() {
