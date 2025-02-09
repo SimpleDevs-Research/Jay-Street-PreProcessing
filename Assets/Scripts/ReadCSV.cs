@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using TMPro;
 
 public class ReadCSV : MonoBehaviour
 {
@@ -37,9 +38,16 @@ public class ReadCSV : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField] private bool m_readOnStart = true;
+    [SerializeField] private bool m_saveAlignedCSVs = true;
     [SerializeField] private bool m_replayOn = true;
+    [SerializeField] private bool m_playReplay = true;
     [SerializeField] private bool m_playing = false;
+    [SerializeField] private int m_replay_total_length;
+    [SerializeField] private int m_replay_current_index;
+    [SerializeField, Range(0f,1f)] private float m_replay_slider;
+    [SerializeField] private float m_prevReplayTimestamp;
     [SerializeField] private float m_viewFieldDistance = 10f;
+    [SerializeField] private TextMeshProUGUI m_millisecondsTextbox;
     [SerializeField] private CSVWriter m_writer;
 
     [System.Serializable]
@@ -245,9 +253,11 @@ public class ReadCSV : MonoBehaviour
         AlignPedestriansToPlayer();
 
         // Save player data as CSV files
-        m_writer.dirName = participantTrial.output_dir;
-        SavePlayerCSV();
-        SavePedestriansCSV();
+        if (m_saveAlignedCSVs) {
+            m_writer.dirName = participantTrial.output_dir;
+            SavePlayerCSV();
+            SavePedestriansCSV();
+        }
 
         // Replay the scene
         if (m_replayOn) StartCoroutine(ReplayCoroutine());
@@ -316,10 +326,58 @@ public class ReadCSV : MonoBehaviour
         // Get the time to wait
         WaitForSeconds waitDelay = new WaitForSeconds(1f/(float)m_replayFPS);
 
+        // Calculate the total number of frames, and the current index at 0
+        m_replay_total_length = player.raw_timestamps.Count-1;
+        m_replay_current_index = 0;
+        m_replay_slider = 0f;
+        m_prevReplayTimestamp = -1f;
+
         // Loop through this player's raw timestamps
+        while(m_playing) {
+            if (m_playReplay) {
+                // we increment automatically
+                m_replay_current_index += 1;
+                if (m_replay_current_index >= m_replay_total_length) m_replay_current_index = 0;
+                m_replay_slider = (float)(m_replay_current_index/m_replay_total_length);
+            } else {
+                // We look to the slider, then apply it to our replay index
+                m_replay_current_index = (int)(m_replay_slider*m_replay_total_length);
+            }
+
+            // get the current timewstamp from the replay index
+            Entity.EntityState playerState = player.raw_timestamps[m_replay_current_index];
+            float timestamp = playerState.timestamp;
+            if (m_millisecondsTextbox != null) m_millisecondsTextbox.text = timestamp.ToString();
+            
+            // Draw debug rays to represent visual field
+            Vector3 leftVisualEdge = Quaternion.Euler(0, -55, 0) * playerState.forward * m_viewFieldDistance;
+            Debug.DrawRay(playerState.position, leftVisualEdge, Color.green);
+            Vector3 rightVisualEdge = Quaternion.Euler(0, 55, 0) * playerState.forward * m_viewFieldDistance;
+            Debug.DrawRay(playerState.position, rightVisualEdge, Color.green);
+            Debug.DrawRay(playerState.position, playerState.forward * m_viewFieldDistance, Color.green);
+            
+            // Don't change anything if the previous timestamp is the same as the current timestamp.
+            if (timestamp == m_prevReplayTimestamp) {
+                yield return null;
+                continue;
+            }
+
+            // loop through all other entities
+            foreach(KeyValuePair<string, Entity> kvp2 in m_entities) {
+                string otherID = kvp2.Key;
+                Entity otherEntity = kvp2.Value;
+                otherEntity.RecreateState(timestamp);
+            }
+
+            // Prep next frame
+            m_prevReplayTimestamp = timestamp;
+            yield return waitDelay;
+        }
+        /*
         foreach(Entity.EntityState playerState in player.raw_timestamps) {
             // Get the key and value from kvp
             float timestamp = playerState.timestamp;
+            if (m_millisecondsTextbox != null) m_millisecondsTextbox.text = timestamp.ToString();
 
             // Draw debug rays to represent visual field
             Vector3 leftVisualEdge = Quaternion.Euler(0, -55, 0) * playerState.forward * m_viewFieldDistance;
@@ -336,7 +394,11 @@ public class ReadCSV : MonoBehaviour
             }
             yield return waitDelay;
         }
-
         m_playing = false;
+        */
+    }
+
+    private void DrawFrame() {
+
     }
 }

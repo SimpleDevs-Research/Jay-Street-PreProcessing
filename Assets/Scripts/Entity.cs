@@ -1,6 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class Entity : MonoBehaviour
 {
@@ -61,6 +64,7 @@ public class Entity : MonoBehaviour
     [SerializeField] private Dictionary<float, EntityState> m_timestamps;
     public Dictionary<float, EntityState> timestamps => m_timestamps;
     [SerializeField] private List<float> m_timestamps_check;
+    EntityState m_currentState = null;
 
     public void InitializeEntity(string newID) {
         m_id = newID;
@@ -120,12 +124,21 @@ public class Entity : MonoBehaviour
     public void RecreateState(float timestamp) {
         if (!m_timestamps.ContainsKey(timestamp)) {
             foreach(Renderer r in m_renderers) r.enabled = false;
+            m_currentState = null;
             return;
         }
 
-        EntityState currentState = m_timestamps[timestamp];
-        transform.position = currentState.position;
-        transform.forward = currentState.forward;
-        foreach(Renderer r in m_renderers) r.enabled = currentState.isActive;
+        m_currentState = m_timestamps[timestamp];
+        transform.position = m_currentState.position;
+        transform.forward = m_currentState.forward;
+        foreach(Renderer r in m_renderers) r.enabled = m_currentState.isActive;
     }
+
+    #if UNITY_EDITOR
+    void OnDrawGizmos() {
+        if (m_currentState == null) return;
+        if (!m_currentState.isActive) return;
+        Handles.Label(transform.position, m_id.ToString());
+    }
+    #endif
 }
