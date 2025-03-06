@@ -582,14 +582,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9d902e4f42624d488fe4829da0e543d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  participantTrial: {fileID: 11400000, guid: 600426a443e5cf143bb0eed130017958, type: 2}
+  participantTrial: {fileID: 11400000, guid: eac49a9b39ee8944ab6f602c3e88c1b9, type: 2}
   m_playerPrefab: {fileID: 429694955805703097, guid: f22ec98ff0788b4468b7c19bfe50b68e, type: 3}
   m_entityPrefab: {fileID: 5593306728688141905, guid: 65a94c3b9e5034505b6f31fff712ad88, type: 3}
   m_replayFPS: 60
-  m_readOnStart: 0
-  m_saveAlignedCSVs: 1
-  m_replayOn: 0
+  m_readOnStart: 1
+  m_saveAlignedCSVs: 0
+  m_replayOn: 1
+  m_playReplay: 0
   m_playing: 0
+  m_replay_total_length: 0
+  m_replay_current_index: 0
+  m_replay_slider: 0
+  m_prevReplayTimestamp: 0
   m_viewFieldDistance: 20
   m_millisecondsTextbox: {fileID: 120572224}
   m_writer:
@@ -644,7 +649,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 727922684}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6369f9fc65cd28e4783e9bf75adf6719, type: 3}
   m_Name: 
